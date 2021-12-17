@@ -118,7 +118,7 @@ namespace Project.PCG
 
         private IEnumerator FindPath(GameObject emptyRoom)
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.2f);
             if (emptyRoom != null)
             {
                 DungeonRoom dr = emptyRoom.GetComponent<DungeonRoom>();
