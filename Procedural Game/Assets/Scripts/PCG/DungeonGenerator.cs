@@ -2,81 +2,109 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PCG
+namespace Project.PCG
 {
     public class DungeonGenerator : MonoBehaviour
     {
-        public List<GameObject> totalRooms;
+        public List<GameObject> totalRooms = new List<GameObject>();
+        public List<GameObject> endRooms = new List<GameObject>();
+        public List<GameObject> overlappers = new List<GameObject>();
 
-        enum GenerationBehaviour
+        private List<GameObject> roomTypes = new List<GameObject>();
+
+        private void Awake()
         {
-            generateState,
-
+            //roomTypes.Add(Resources.Load<GameObject>("Rooms/Placeholder_Room_1"));
+            roomTypes.Add(Resources.Load<GameObject>("Rooms/Placeholder_Room_2"));
+            roomTypes.Add(Resources.Load<GameObject>("Rooms/Placeholder_Room_4"));
         }
 
         void Start()
         {
             // spawn dungeon room
-            GenerateRooms();
+            CreateRoom(transform.position, Quaternion.identity);
         }
 
-        private void GenerateRooms()
+        private void Update()
         {
-            // Create room
-            // Increase Room counter
-            // Rename Room
-            GameObject room = Instantiate(Resources.Load<GameObject>("Rooms/Placeholder_Room"), transform);
-            totalRooms.Add(room);
-            room.name = "Room " + totalRooms.Count;
 
-            // Find room Doorways
-            // Choose a value between 0 and the total doorways
-            int roomDoorways = room.transform.GetChild(0).transform.childCount;
-            int roomsToSpawn = Random.Range(0, roomDoorways);
-
-
-            for (int i = 0; i <= roomsToSpawn; i++)
+            if (totalRooms.Count != 100 && endRooms.Count == 0)
             {
-                GameObject roomNew = Instantiate(
-                    Resources.Load<GameObject>("Rooms/Placeholder_Room"),
-                    room.transform.GetChild(0).GetChild(i).position,
-                    room.transform.GetChild(0).GetChild(i).rotation);
-
-                totalRooms.Add(roomNew);
-                roomNew.name = "Room " + totalRooms.Count;
-                roomNew.transform.parent = this.transform;
+                RestartRoom();
             }
         }
 
-        private void CreateRoom()
+        private void DestroyOverlap()
         {
-            GameObject room = Instantiate(Resources.Load<GameObject>("Rooms/Placeholder_Room"), transform);
-            totalRooms.Add(room);
-            room.name = "Room " + totalRooms.Count;
-
-
-            CreateLeadingRooms(room, SelectDoorways(room));
-        }
-
-        private int SelectDoorways(GameObject room)
-        {
-            int roomDoorways = room.transform.GetChild(0).transform.childCount;
-            return Random.Range(0, roomDoorways);
-
-        }
-
-        private void CreateLeadingRooms(GameObject room, int roomDoorways)
-        {
-            for (int i = 0; i <= roomDoorways; i++)
+            foreach (GameObject obj in overlappers)
             {
-                GameObject roomNew = Instantiate(
-                    Resources.Load<GameObject>("Rooms/Placeholder_Room"),
-                    room.transform.GetChild(0).GetChild(i).position,
-                    room.transform.GetChild(0).GetChild(i).rotation);
+                totalRooms.Remove(obj);
+                endRooms.Remove(obj);
+                Destroy(obj);
+            }
+        }
 
+        private void RestartRoom()
+        {
+            // Go back through the rooms in the total rooms
+            // if room has doorways available add them back to the pathless rooms
+
+            for (int i = 0; i < totalRooms.Count; i++)
+            {
+                DungeonRoom dr = totalRooms[i].GetComponent<DungeonRoom>();
+
+                if (totalRooms.Contains(totalRooms[i]) && dr.doorways.Count > 0)
+                {
+                    if (!endRooms.Contains(totalRooms[i]))
+                    {
+                        endRooms.Add(totalRooms[i]);
+                    }
+                }
+
+            }
+        }
+
+        private void CreateRoom(Vector3 position, Quaternion rotation)
+        {
+            if (totalRooms.Count < 100)
+            {
+                //Random room
+                int type = Random.Range(0, roomTypes.Count);
+
+                GameObject room = Instantiate(roomTypes[type], position, rotation);
                 totalRooms.Add(room);
+                endRooms.Add(room);
+                room.GetComponent<DungeonRoom>().spawnNum = totalRooms.Count;
                 room.name = "Room " + totalRooms.Count;
-                roomNew.transform.parent = this.transform;
+                room.transform.parent = this.transform;
+
+                if (room != null)
+                {
+                    StartCoroutine(FindPath(room));
+                }
+            }
+        }
+
+        private IEnumerator FindPath(GameObject emptyRoom)
+        {
+            if (endRooms.Contains(emptyRoom))
+            {
+                DungeonRoom dr = emptyRoom.GetComponent<DungeonRoom>();
+                Debug.Log(dr.doorways.Count);
+
+                yield return new WaitForSeconds(0.2f);
+
+                if (dr.doorways.Count > 0)
+                {
+                    int roomsToSpawn = Random.Range(0, dr.doorways.Count);
+
+                    for (int i = 0; i <= roomsToSpawn; i++)
+                    {
+                        CreateRoom(dr.doorways[i].position, dr.doorways[i].rotation);
+                    }
+                    endRooms.Remove(emptyRoom);
+                    DestroyOverlap();
+                }
             }
         }
     }
