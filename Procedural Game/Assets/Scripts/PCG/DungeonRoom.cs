@@ -9,10 +9,19 @@ namespace Project.PCG
         public List<Transform> doorways = new List<Transform>();
         public DungeonGenerator dg;
         public int spawnNum;
+        public bool finishedGen;
 
         private void Start()
         {
             dg = transform.parent.GetComponent<DungeonGenerator>();
+        }
+
+        private void Update()
+        {
+            if (doorways.Count == 0 && !finishedGen)
+            {
+                finishedGen = true;
+            }
         }
 
         private void OnTriggerStay(Collider other)
