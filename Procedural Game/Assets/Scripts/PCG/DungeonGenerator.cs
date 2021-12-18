@@ -16,7 +16,13 @@ namespace Project.PCG
 
         public int index;
         private bool stopper;
+        private GeneratorStates generatorStates;
 
+        private enum GeneratorStates
+        {
+            generateState,
+            findPathState
+        }
         private void Awake()
         {
             //roomTypes.Add(Resources.Load<GameObject>("Rooms/Placeholder_Room_1"));
@@ -36,13 +42,18 @@ namespace Project.PCG
             CreateRoom(transform.position, Quaternion.identity);
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             DestroyOverlap();
 
             if (totalRooms.Count != maxRooms && spawnIndex == totalRooms.Count && !stopper)
+            //if (totalRooms.Count < maxRooms && spawnIndex == totalRooms.Count)
             {
                 RestartRoom();
+            }
+            else if (totalRooms.Count > maxRooms)
+            {
+                DestroyLatestRooms();
             }
             else if (totalRooms.Count == maxRooms && !stopper)
             {
@@ -51,9 +62,20 @@ namespace Project.PCG
             }
         }
 
+        private void DestroyLatestRooms()
+        {
+            //find latest rooms
+            totalRooms.Remove(totalRooms[totalRooms.Count]);
+            if (overlappers.Contains(totalRooms[totalRooms.Count]))
+            {
+                overlappers.Remove(totalRooms[totalRooms.Count]);
+            }
+            Destroy(totalRooms[totalRooms.Count]);
+        }
+
         private IEnumerator ClearData()
         {
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(1f);
             totalRooms.Clear();
             overlappers.Clear();
         }
@@ -65,8 +87,7 @@ namespace Project.PCG
                 totalRooms.Remove(obj);
                 Destroy(obj);
             }
-
-            // NEED WAY TO REMOVE OVERLAPPED OBJS FROM LIST
+            overlappers.Clear();
         }
 
         private void RestartRoom()
