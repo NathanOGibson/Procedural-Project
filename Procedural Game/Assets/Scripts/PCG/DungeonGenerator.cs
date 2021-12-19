@@ -10,7 +10,7 @@ namespace Project.PCG
 
         public List<GameObject> totalRooms = new List<GameObject>();
         public List<GameObject> overlappers = new List<GameObject>();
-        private List<GameObject> roomTypes = new List<GameObject>();
+        public List<GameObject> roomTypes = new List<GameObject>();
 
         public int spawnIndex;
 
@@ -29,6 +29,7 @@ namespace Project.PCG
         private void FixedUpdate()
         {
             DestroyOverlap();
+
             if (!once)
             {
                 CreateRoom(transform.position, Quaternion.identity);
@@ -65,6 +66,10 @@ namespace Project.PCG
         private IEnumerator ClearData()
         {
             yield return new WaitForSeconds(1f);
+            foreach (GameObject obj in totalRooms)
+            {
+                obj.GetComponent<DungeonRoom>().enabled = false;
+            }
             totalRooms.Clear();
         }
 
@@ -95,7 +100,6 @@ namespace Project.PCG
             }
             else
             {
-                Debug.Log("restart");
                 RestartGenerator();
             }
         }
