@@ -6,8 +6,10 @@ namespace Project.PCG
 {
     public class DungeonRoom : MonoBehaviour
     {
+        public string roomType;
         public List<Transform> doorways = new List<Transform>();
         public DungeonGenerator dg;
+
         public int spawnNum;
         public bool finishedGen;
 
@@ -22,9 +24,14 @@ namespace Project.PCG
             {
                 finishedGen = true;
             }
+
+            if (dg.totalRooms.Count != 0 && spawnNum != dg.totalRooms.IndexOf(gameObject))
+            {
+                spawnNum = dg.totalRooms.IndexOf(gameObject);
+            }
         }
 
-        private void OnTriggerEnter(Collider other)
+        private void OnTriggerStay(Collider other)
         {
             if (other.tag.Equals("Room"))
             {

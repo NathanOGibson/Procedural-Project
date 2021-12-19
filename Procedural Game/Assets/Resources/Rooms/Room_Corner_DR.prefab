@@ -2745,6 +2745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4202bb0bbd2871c4fa90b58ff07ee2ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomType: Corner_DR
   doorways: []
   dg: {fileID: 0}
   spawnNum: 0

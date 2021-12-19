@@ -16,19 +16,9 @@ namespace Project.PCG
 
         public int index;
         private bool stopper;
-        private GeneratorStates generatorStates;
-
-        private enum GeneratorStates
-        {
-            generateState,
-            findPathState
-        }
+        private bool once;
         private void Awake()
         {
-            //roomTypes.Add(Resources.Load<GameObject>("Rooms/Placeholder_Room_1"));
-            //roomTypes.Add(Resources.Load<GameObject>("Rooms/Placeholder_Room_2"));
-            //roomTypes.Add(Resources.Load<GameObject>("Rooms/Placeholder_Room_4"));
-
             roomTypes.Add(Resources.Load<GameObject>("Rooms/Room_Normal"));
             roomTypes.Add(Resources.Load<GameObject>("Rooms/Room_Large"));
             roomTypes.Add(Resources.Load<GameObject>("Rooms/Room_Long"));
@@ -36,15 +26,14 @@ namespace Project.PCG
             roomTypes.Add(Resources.Load<GameObject>("Rooms/Room_Corner_DR"));
         }
 
-        void Start()
-        {
-            // spawn dungeon room
-            CreateRoom(transform.position, Quaternion.identity);
-        }
-
         private void FixedUpdate()
         {
             DestroyOverlap();
+            if (!once)
+            {
+                CreateRoom(transform.position, Quaternion.identity);
+                once = true;
+            }
 
             if (totalRooms.Count != maxRooms && spawnIndex == totalRooms.Count && !stopper)
             //if (totalRooms.Count < maxRooms && spawnIndex == totalRooms.Count)
@@ -77,7 +66,6 @@ namespace Project.PCG
         {
             yield return new WaitForSeconds(1f);
             totalRooms.Clear();
-            overlappers.Clear();
         }
 
         private void DestroyOverlap()
@@ -137,12 +125,12 @@ namespace Project.PCG
         }
 
 
-        private IEnumerator FindPath(GameObject emptyRoom)
+        private IEnumerator FindPath(GameObject room)
         {
-            yield return new WaitForSeconds(0.2f);
-            if (emptyRoom != null)
+            yield return new WaitForSecondsRealtime(0.1f);
+            if (room != null)
             {
-                DungeonRoom dr = emptyRoom.GetComponent<DungeonRoom>();
+                DungeonRoom dr = room.GetComponent<DungeonRoom>();
 
                 if (dr.doorways.Count > 0)
                 {
