@@ -43,7 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75dd1a9920cd2444980ba726e1f5e72d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxRooms: 100
+  maxRooms: 1000
   totalRooms: []
   overlappers: []
   spawnIndex: 0
