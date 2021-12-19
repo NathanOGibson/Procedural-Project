@@ -15,7 +15,7 @@ namespace Project.PCG
             dr.doorways.Add(transform);
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (isBlocked && dr.doorways.Contains(transform))
             {

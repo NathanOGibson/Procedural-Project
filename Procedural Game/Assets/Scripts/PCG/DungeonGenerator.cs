@@ -16,11 +16,8 @@ namespace Project.PCG
 
         public int index;
         private bool stopper;
-<<<<<<< HEAD
         private bool once;
-=======
 
->>>>>>> parent of f9e0b99 (Fix to removal of rooms)
         private void Awake()
         {
             roomTypes.Add(Resources.Load<GameObject>("Rooms/Room_Normal"));
@@ -30,17 +27,7 @@ namespace Project.PCG
             roomTypes.Add(Resources.Load<GameObject>("Rooms/Room_Corner_DR"));
         }
 
-<<<<<<< HEAD
         private void FixedUpdate()
-=======
-        void Start()
-        {
-            // spawn dungeon room
-            CreateRoom(transform.position, Quaternion.identity);
-        }
-
-        private void Update()
->>>>>>> parent of f9e0b99 (Fix to removal of rooms)
         {
             DestroyOverlap();
             if (!once)
@@ -50,8 +37,13 @@ namespace Project.PCG
             }
 
             if (totalRooms.Count != maxRooms && spawnIndex == totalRooms.Count && !stopper)
+            //if (totalRooms.Count < maxRooms && spawnIndex == totalRooms.Count)
             {
                 RestartRoom();
+            }
+            else if (totalRooms.Count > maxRooms)
+            {
+                DestroyLatestRooms();
             }
             else if (totalRooms.Count == maxRooms && !stopper)
             {
@@ -60,20 +52,25 @@ namespace Project.PCG
             }
         }
 
+        private void DestroyLatestRooms()
+        {
+            //find latest rooms
+            totalRooms.Remove(totalRooms[totalRooms.Count]);
+            if (overlappers.Contains(totalRooms[totalRooms.Count]))
+            {
+                overlappers.Remove(totalRooms[totalRooms.Count]);
+            }
+            Destroy(totalRooms[totalRooms.Count]);
+        }
+
         private IEnumerator ClearData()
         {
-<<<<<<< HEAD
             yield return new WaitForSeconds(1f);
-<<<<<<< HEAD
             foreach (GameObject obj in totalRooms)
             {
                 obj.GetComponent<DungeonRoom>().enabled = false;
             }
-=======
             yield return new WaitForSeconds(0.4f);
->>>>>>> parent of f9e0b99 (Fix to removal of rooms)
-=======
->>>>>>> parent of 07573ec (Small tweaks)
             totalRooms.Clear();
         }
 
@@ -84,8 +81,7 @@ namespace Project.PCG
                 totalRooms.Remove(obj);
                 Destroy(obj);
             }
-
-            // NEED WAY TO REMOVE OVERLAPPED OBJS FROM LIST
+            overlappers.Clear();
         }
 
         private void RestartRoom()
