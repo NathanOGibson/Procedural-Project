@@ -18,7 +18,7 @@ namespace Project.PCG
             dg = transform.parent.GetComponent<DungeonGenerator>();
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             if (doorways.Count == 0 && !finishedGen)
             {
@@ -33,9 +33,9 @@ namespace Project.PCG
 
         private void OnTriggerStay(Collider other)
         {
-            if (other.tag.Equals("Room"))
+            if (other.tag.Equals("Room") && !dg.overlappers.Contains(gameObject))
             {
-                if (other.GetComponent<DungeonRoom>().spawnNum > spawnNum && other.gameObject != null)
+                if (other.GetComponent<DungeonRoom>().spawnNum > spawnNum)
                 {
                     dg.overlappers.Add(other.gameObject);
                 }
